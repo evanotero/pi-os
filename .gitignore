@@ -1,0 +1,7 @@
+a.out
+main
+qemu_*
+*.o
+*.swp
+*.bin
+*.elf
