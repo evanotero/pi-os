@@ -3,7 +3,7 @@
  * Author:  Evan Otero
  *
  * ARMv6
- * An operating system that turns the ACT LED on and off repeatedly.
+ * An operating system that turns the ACT LED on and off repeatedly for RPi Zero.
  *
  * IMPORTANT NOTES:
  * - Pi 0 inherits increased pin count of newer Pi's.
@@ -12,37 +12,62 @@
  * - Need bit 15 for GPSET1 and GPCLR0.
  */
 
-.section .init              @ directive to linker to put this code first
-.globl _start               @ directive to toolchain to tell where entry point is
-
+.section .init                  @ directive to linker to put this code first
+.globl _start                   @ directive to toolchain to tell where entry point is
 _start:
-    LDR     R0, =0x20200000 @ address of GPIO controller
+    B       main
 
-    MOV     R1, #1
-    LSL     R1, #21         @ 7th set of 3 bits -> GPFSEL4 bit
-    STR     R1, [r0, #16]   @ enable GPIO47 for output
+.section .text
+main:
+    MOV     SP, #0x8000
 
-    MOV     R1, #1
-    LSL     R1, #15         @ put a 1 in 15th bit of message
+    pinNum  .req R0
+    pinFunc .req R1
+    MOV     pinNum, #47
+    MOV     pinFunc, #1
+
+    BL      SetGpioFunction     @ Set function of GPIO port 47 to 001
+    .unreq  pinNum
+    .unreq  pinFunc
 
 /* Turn LED on and off frepeatedly */
 LOOP$:
-    STR     R1, [r0, #44]   @ set GPIO47 to HIGH (44) -> LED turns ON
-    MOV     R2, #0x3F0000   @ initialize wait start amount
+    pinNum  .req R0
+    pinVal  .req R1
+    MOV     pinNum, #47
+    MOV     pinVal, #1
 
-/* Wait until R2 == 0 */
+    BL      SetGpio             @ turn LED on
+    .unreq  pinNum
+    .unreq  pinVal
+
+    decr    .req R0
+    MOV     decr, #0x3F0000     @ initialize wait start amount
+
+/* Wait until decr == 0 */
 WAIT1$:
-    SUB     R2, #1
-    CMP     R2, #0
+    SUB     decr, #1
+    CMP     decr, #0
     BNE     WAIT1$
+    .unreq  decr
 
-    STR     R1, [r0, #32]   @ set GPIO47 to LOW (32) -> LED turns OFF
-    MOV     R2, #0x3F0000   @ initialize wait start amount
+    pinNum  .req R0
+    pinVal  .req R1
+    MOV     pinNum, #47
+    MOV     pinVal, #0
 
-/* Wait until R2 == 0 */
+    BL      SetGpio             @ turn LED off      
+    .unreq  pinNum
+    .unreq  pinVal
+
+    decr    .req R0
+    MOV     decr, #0x3F0000     @ initialize wait start amount
+
+/* Wait until decr == 0 */
 WAIT2$:
-    SUB     R2, #1
-    CMP     R2, #0
+    SUB     decr, #1
+    CMP     decr, #0
     BNE     WAIT2$
+    .unreq  decr
 
-    B       LOOP$
+    B       LOOP$               @ loop over process forever
