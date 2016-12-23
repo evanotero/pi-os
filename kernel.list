@@ -65,19 +65,36 @@ Disassembly of section .text:
     80ac:	e3a0002f 	mov	r0, #47	; 0x2f
     80b0:	e3a01001 	mov	r1, #1
     80b4:	ebffffe8 	bl	805c <SetGpio>
-    80b8:	e3a0083f 	mov	r0, #4128768	; 0x3f0000
+    80b8:	e59f0018 	ldr	r0, [pc, #24]	; 80d8 <LOOP$+0x2c>
+    80bc:	eb00000c 	bl	80f4 <Wait>
+    80c0:	e3a0002f 	mov	r0, #47	; 0x2f
+    80c4:	e3a01000 	mov	r1, #0
+    80c8:	ebffffe3 	bl	805c <SetGpio>
+    80cc:	e59f0004 	ldr	r0, [pc, #4]	; 80d8 <LOOP$+0x2c>
+    80d0:	eb000007 	bl	80f4 <Wait>
+    80d4:	eafffff4 	b	80ac <LOOP$>
+    80d8:	000186a0 	.word	0x000186a0
 
-000080bc <WAIT1$>:
-    80bc:	e2400001 	sub	r0, r0, #1
-    80c0:	e3500000 	cmp	r0, #0
-    80c4:	1afffffc 	bne	80bc <WAIT1$>
-    80c8:	e3a0002f 	mov	r0, #47	; 0x2f
-    80cc:	e3a01000 	mov	r1, #0
-    80d0:	ebffffe1 	bl	805c <SetGpio>
-    80d4:	e3a0083f 	mov	r0, #4128768	; 0x3f0000
+000080dc <GetSystemTimerAddress>:
+    80dc:	e59f0034 	ldr	r0, [pc, #52]	; 8118 <LOOP$+0x14>
+    80e0:	e1a0f00e 	mov	pc, lr
 
-000080d8 <WAIT2$>:
-    80d8:	e2400001 	sub	r0, r0, #1
-    80dc:	e3500000 	cmp	r0, #0
-    80e0:	1afffffc 	bne	80d8 <WAIT2$>
-    80e4:	eafffff0 	b	80ac <LOOP$>
+000080e4 <GetCurrentTime>:
+    80e4:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+    80e8:	ebfffffb 	bl	80dc <GetSystemTimerAddress>
+    80ec:	e1c000d4 	ldrd	r0, [r0, #4]
+    80f0:	e49df004 	pop	{pc}		; (ldr pc, [sp], #4)
+
+000080f4 <Wait>:
+    80f4:	e1a02000 	mov	r2, r0
+    80f8:	e52de004 	push	{lr}		; (str lr, [sp, #-4]!)
+    80fc:	ebfffff8 	bl	80e4 <GetCurrentTime>
+    8100:	e1a03000 	mov	r3, r0
+
+00008104 <LOOP$>:
+    8104:	ebfffff6 	bl	80e4 <GetCurrentTime>
+    8108:	e0401003 	sub	r1, r0, r3
+    810c:	e1510002 	cmp	r1, r2
+    8110:	9afffffb 	bls	8104 <LOOP$>
+    8114:	e49df004 	pop	{pc}		; (ldr pc, [sp], #4)
+    8118:	20003000 	.word	0x20003000
