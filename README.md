@@ -13,6 +13,7 @@ The goal is to create a basic operating system for the Raspberry Pi Zero in asse
 - GNU compiler toolchain that targets ARMv6 processors.
 
 ## Resources
+- [BCM2385 ARM Peripherals](https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf)
 - [University of Cambridge](http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/index.html)
 - [YAGARTO GNU ARM toolchain](http://www.yagarto.org/)
 - [Digital Design and Computer Architecture: ARM Edition](https://www.amazon.com/Digital-Design-Computer-Architecture-ARM/dp/0128000562)
