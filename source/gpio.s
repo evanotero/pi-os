@@ -83,7 +83,6 @@ SetGpio:
     PUSH        {LR}
     MOV         R2, pinNum
     .unreq      pinNum
-
     pinNum      .req R2
 
     BL          GetGpioAddress
