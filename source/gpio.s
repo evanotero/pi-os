@@ -103,10 +103,10 @@ SetGpio:
     LSL         setBit, pinNum
     .unreq      pinNum
 
-    TEQ         pinVal, #0
+    TEQ         pinVal, #0              @ 0 -> LED on
     .unreq      pinVal
-    STREQ       setBit, [gpioAddr, #28] @ turn off
-    STRNE       setBit, [gpioAddr, #40] @ turn on
+    STREQ       setBit, [gpioAddr, #40] @ turn on
+    STRNE       setBit, [gpioAddr, #28] @ turn off
     .unreq      setBit
     .unreq      gpioAddr
 
