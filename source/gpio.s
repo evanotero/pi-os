@@ -3,6 +3,9 @@
  * Author:  Evan Otero
  *
  * Contains routines for manipulation of the GPIO ports.
+ *
+ * IMPORTANT NOTES:
+ * - Address based off BCM2835.
  */
 
 /*

@@ -3,6 +3,10 @@
  * Author:  Evan Otero
  *
  * Contains routines that interact with System Timer.
+ *
+ * IMPORTANT NOTES:
+ * - Timer runs at 1MHz.
+ * - Address based off BCM2835.
  */
 
 /*
