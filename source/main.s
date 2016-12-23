@@ -30,34 +30,35 @@ main:
     .unreq      pinNum
     .unreq      pinFunc
 
-/* Turn LED on and off frepeatedly */
+    ptrn        .req R4
+    LDR         ptrn, =pattern
+    LDR         ptrn, [ptrn]
+    seq         .req R5
+    MOV         seq, #0             @ sequence index
+
+/* Turn LED on and off based on pattern */
 LOOP$:
     pinNum      .req R0
     pinVal      .req R1
     MOV         pinNum, #47
     MOV         pinVal, #1
+    LSL         pinVal, seq
+    AND         pinVal, ptrn
 
     BL          SetGpio             @ turn LED on
     .unreq      pinNum
     .unreq      pinVal
 
-    waitTime    .req R0
-    LDR         waitTime, =100000
-    BL          Wait                @ Wait 0.1 seconds
-    .unreq      waitTime
+    LDR         R0, =250000
+    BL          Wait                @ Wait 0.25 seconds
 
-    pinNum      .req R0
-    pinVal      .req R1
-    MOV         pinNum, #47
-    MOV         pinVal, #0
-
-    BL          SetGpio              @ turn LED off      
-    .unreq      pinNum
-    .unreq      pinVal
-
-    waitTime    .req R0
-    LDR         waitTime, =100000
-    BL          Wait                @ Wait 0.1 seconds
-    .unreq      waitTime
+    ADD         seq, #1             @ increment sequence index
+    AND         seq, #31            @ if (seq >= 32) seq = 0
 
     B           LOOP$               @ loop over process forever
+
+.section .data
+.align 2                            @ align on multiple of 4
+pattern:
+    .int        0b11111111101010100010001000101010
+
