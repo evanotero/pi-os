@@ -10,6 +10,9 @@
  * - GPIO47 is now the ACT LED.
  * - Use GPFSEL4 bit 21 to enable GPIO47.
  * - Need bit 15 for GPSET1 and GPCLR0.
+ * - Pin val:
+ *     - 1 -> LED off
+ *     - 0 -> LED on
  */
 
 .section .init                      @ directive to linker to put this code first
