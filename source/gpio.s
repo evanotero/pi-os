@@ -10,15 +10,12 @@
 
 /*
     Returns address of GPIO controller.
-    void* GetGpioAddress()
+    void* GetGpioBase()
  */
-.globl GetGpioAddress
-GetGpioAddress:
-    gpioAddr    .req  R0
-    LDR         gpioAddr, =0x20200000
-
+.globl GetGpioBase
+GetGpioBase:
+    LDR         R0, =0x20200000
     MOV         PC, LR
-    .unreq      gpioAddr
 
 /*
     Sets function of pin to specified value.
@@ -38,14 +35,14 @@ SetGpioFunction:
     .unreq      pinNum
     pinNum      .req R2
 
-    BL          GetGpioAddress
+    BL          GetGpioBase
     gpioAddr    .req R0
 
-    FUNCTIONLOOP$:                      @ gpioAddr = GPIO Address + 4 * (Pin # / 10)
-        CMP     pinNum, #9              @ pinNum contains remainder of (pin #) / 10
-        SUBHI   pinNum, #10
-        ADDHI   gpioAddr, #4
-        BHI     FUNCTIONLOOP$
+FUNCTIONLOOP$:                          @ gpioAddr = GPIO Address + 4 * (Pin # / 10)
+    CMP         pinNum, #9              @ pinNum contains remainder of (pin #) / 10
+    SUBHI       pinNum, #10
+    ADDHI       gpioAddr, #4
+    BHI         FUNCTIONLOOP$
 
     ADD         pinNum, pinNum, LSL #1  @ pinNum * 3 = pinNum * 2 + pinNum
     LSL         pinFunc, pinNum
@@ -88,7 +85,7 @@ SetGpio:
     .unreq      pinNum
     pinNum      .req R2
 
-    BL          GetGpioAddress
+    BL          GetGpioBase
     gpioAddr    .req R0
 
     pinBank     .req R3
