@@ -11,10 +11,10 @@
 
 /*
     Returns address of Timer.
-    void* GetSystemTimerAddress()
+    void* GetSystemTimerBase()
  */
-.globl GetSystemTimerAddress
-GetSystemTimerAddress:
+.globl GetSystemTimerBase
+GetSystemTimerBase:
     LDR         R0, =0x20003000
     MOV         PC, LR
 
@@ -26,7 +26,7 @@ GetSystemTimerAddress:
 GetCurrentTime:
     PUSH        {LR}
 
-    BL          GetSystemTimerAddress
+    BL          GetSystemTimerBase
 
     LDRD        R0, R1, [R0, #4]
     POP         {PC}
@@ -46,14 +46,14 @@ Wait:
     start       .req R3
     MOV         start, R0
 
-    elapsed .req R1
-    current .req R0
+    elapsed     .req R1
+    current     .req R0
 
-    LOOP$:
-        BL      GetCurrentTime
-        SUB     elapsed, current, start
-        CMP     elapsed, delay
-        BLS     LOOP$
+LOOP$:
+    BL          GetCurrentTime
+    SUB         elapsed, current, start
+    CMP         elapsed, delay
+    BLS         LOOP$
 
     .unreq      elapsed
     .unreq      current
