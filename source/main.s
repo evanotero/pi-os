@@ -3,7 +3,7 @@
  * Author:  Evan Otero
  *
  * ARMv6
- * An operating system that turns the ACT LED on and off repeatedly for RPi Zero.
+ * An operating system that controls the screen and ACT LED for RPi Zero.
  *
  * IMPORTANT NOTES:
  * - Pi 0 inherits increased pin count of newer Pi's.
@@ -26,44 +26,59 @@ main:
     @ Set the stack pointer to 0x8000.
     MOV         SP, #0x8000
 
-    pinNum      .req R0
-    pinFunc     .req R1
-    MOV         pinNum, #47
-    MOV         pinFunc, #1
+    @ Set up screen
+    MOV         R0, #1024
+    MOV         R1, #768
+    MOV         R2, #16
+    BL          InitializeFrameBuffer
 
-    BL          SetGpioFunction     @ Set function of GPIO port 47 to 001
-    .unreq      pinNum
-    .unreq      pinFunc
+    @ Check for failed frame buffer
+    TEQ         R0, #0
+    BNE         NOERROR$
 
-    ptrn        .req R4
-    LDR         ptrn, =pattern
-    LDR         ptrn, [ptrn]
-    seq         .req R5
-    MOV         seq, #0             @ sequence index
+    MOV         R0, #47
+    MOV         R1, #1
+    BL          SetGpioFunction
+    MOV         R0, #47
+    MOV         R1, #0
+    BL          SetGpio
 
-/* Turn LED on and off based on pattern */
-LOOP$:
-    pinNum      .req R0
-    pinVal      .req R1
-    MOV         pinNum, #47
-    MOV         pinVal, #1
-    LSL         pinVal, seq
-    AND         pinVal, ptrn
+ERROR$:
+    B           ERROR$
 
-    BL          SetGpio             @ turn LED on
-    .unreq      pinNum
-    .unreq      pinVal
+NOERROR$:
+    fbInfoAddr  .req R4
+    MOV         fbInfoAddr, R0
 
-    LDR         R0, =250000
-    BL          Wait                @ Wait 0.25 seconds
+    @ Set pixels (loop forever)
+RENDER$:
+    fbAddr      .req R3
+    LDR         fbAddr, [fbInfoAddr, #32]   @ GPU Pointer
 
-    ADD         seq, #1             @ increment sequence index
-    AND         seq, #31            @ if (seq >= 32) seq = 0
+    @ Keep track of current color
+    color       .req R0
+    y           .req R1
+    MOV         y, #768
 
-    B           LOOP$               @ loop over process forever
+    DRAWROW$:
+        x       .req R2
+        MOV     x, #1024
 
-.section .data
-.align 2                            @ align on multiple of 4
-pattern:
-    .int        0b11111111101010100010001000101010
+        DRAWPIXEL$:
+            STRH    color, [fbAddr] @ Post-index: STRH    color, [fbAddr], #2
+            ADD     fbAddr, #2
+            SUB     x, #1
+            TEQ     x, #0
+            BNE     DRAWPIXEL$
 
+        .unreq  x
+        SUB     y, #1
+        ADD     color, #1
+        TEQ     y, #0
+        BNE     DRAWROW$
+
+    .unreq      y
+    B           RENDER$
+
+    .unreq      fbAddr
+    .unreq      fbInfoAddr
