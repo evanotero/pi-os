@@ -13,6 +13,7 @@
  * - Pin val:
  *     - 1 -> LED off
  *     - 0 -> LED on
+ * - Pictures are stored left to right, then top to bottom
  */
 
 .section .init                      @ directive to linker to put this code first
@@ -22,6 +23,7 @@ _start:
 
 .section .text
 main:
+    @ Set the stack pointer to 0x8000.
     MOV         SP, #0x8000
 
     pinNum      .req R0
