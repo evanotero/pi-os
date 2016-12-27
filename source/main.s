@@ -47,38 +47,65 @@ ERROR$:
     B           ERROR$
 
 NOERROR$:
-    fbInfoAddr  .req R4
-    MOV         fbInfoAddr, R0
+    fbInfoAddr  .req R0
+    BL          SetGraphicsAddress
 
-    @ Set pixels (loop forever)
+    lastRandom  .req R7
+    lastX       .req R8
+    lastY       .req R9
+    color       .req R10
+    MOV         lastRandom, #0
+    MOV         lastX, #0
+    MOV         lastY, #0
+    MOV         color, #0
+
+    x           .req R5
+    y           .req R6
+
+    @ Make lines (loop forever)
 RENDER$:
-    fbAddr      .req R3
-    LDR         fbAddr, [fbInfoAddr, #32]   @ GPU Pointer
+    @ Generate next x-coordinate
+    MOV         R0, lastRandom
+    BL          Random
+    MOV         x, R0
 
-    @ Keep track of current color
-    color       .req R0
-    y           .req R1
-    MOV         y, #768
+    @ Generate next y-coordinate
+    BL          Random
+    MOV         y, R0
 
-    DRAWROW$:
-        x       .req R2
-        MOV     x, #1024
+    @ Update last random number
+    MOV         lastRandom, y
 
-        DRAWPIXEL$:
-            STRH    color, [fbAddr] @ Post-index: STRH    color, [fbAddr], #2
-            ADD     fbAddr, #2
-            SUB     x, #1
-            TEQ     x, #0
-            BNE     DRAWPIXEL$
+    @ Set line color
+    MOV         R0, color
+    BL          SetForeColor
+    ADD         color, #1
+    LSL         color, #16
+    LSR         color, #16      @ set to 0 if above 0xFFFF
 
-        .unreq  x
-        SUB     y, #1
-        ADD     color, #1
-        TEQ     y, #0
-        BNE     DRAWROW$
+    @ Convet x and y to be between 0 and 1023
+    LSR         R2, x, #22
+    LSR         R3, y, #22
 
-    .unreq      y
+    @ Check that y is on screen
+    CMP         R3, #768
+    BHS         RENDER$
+
+    @ Draw line from last x, y
+    MOV         R0, lastX
+    MOV         R1, lastY
+    BL          DrawLine
+
+    @ Update last x, y
+    MOV         lastX, R2
+    MOV         lastY, R3
+
     B           RENDER$
 
-    .unreq      fbAddr
     .unreq      fbInfoAddr
+    .unreq      x
+    .unreq      y
+    .unreq      lastRandom
+    .unreq      lastX
+    .unreq      lastY
+    .unreq      color
