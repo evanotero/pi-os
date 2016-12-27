@@ -19,7 +19,7 @@
 
 /*
     Returns address of Mailbox.
-    void* GetMailboxBase()
+    void* GetMailboxBase();
  */
 .globl GetMailboxBase
 GetMailboxBase:
@@ -87,7 +87,7 @@ WAIT1$:
         5. Read from Read field.
         6. Check if mailbox is one we want.  Else, go back to 3.
         7. Return result.
-    u32 MailboxRead(u8 channel)
+    u32 MailboxRead(u8 channel);
  */
 .globl MailboxRead
 MailboxRead:

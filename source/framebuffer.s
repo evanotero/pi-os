@@ -44,7 +44,7 @@ FrameBufferInfo:
         4. Receive the reply from mailbox
         5. If reply is not 0, method has failed.  Return 0 to indicate failure.
         6. Return a pointer to the frame buffer info.
-    FrameBuferDescription* InitialiseFrameBuffer(u32 width, u32 height, u32 bitDepth)
+    FrameBuferDescription* InitialiseFrameBuffer(u32 width, u32 height, u32 bitDepth);
  */
 .section .text
 .globl InitializeFrameBuffer

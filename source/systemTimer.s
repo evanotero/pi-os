@@ -11,7 +11,7 @@
 
 /*
     Returns address of Timer.
-    void* GetSystemTimerBase()
+    void* GetSystemTimerBase();
  */
 .globl GetSystemTimerBase
 GetSystemTimerBase:
@@ -20,7 +20,7 @@ GetSystemTimerBase:
 
 /*
     Returns current value in timer.
-    u64 GetCurrentTime()
+    u64 GetCurrentTime();
  */
 .globl GetCurrentTime
 GetCurrentTime:
@@ -33,7 +33,7 @@ GetCurrentTime:
 
 /*
     Waits for a given amount of time.
-    void GetTime(u32 waitTime)
+    void GetTime(u32 waitTime);
  */
 .globl Wait
 Wait:

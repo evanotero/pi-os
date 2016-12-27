@@ -10,7 +10,7 @@
 
 /*
     Returns address of GPIO controller.
-    void* GetGpioBase()
+    void* GetGpioBase();
  */
 .globl GetGpioBase
 GetGpioBase:
@@ -19,7 +19,7 @@ GetGpioBase:
 
 /*
     Sets function of pin to specified value.
-    void SetGpioFunction(u32 gpioRegister, u32 function)
+    void SetGpioFunction(u32 gpioRegister, u32 function);
  */
 .globl SetGpioFunction
 SetGpioFunction:
@@ -70,7 +70,7 @@ FUNCTIONLOOP$:                          @ gpioAddr = GPIO Address + 4 * (Pin # /
 
 /*
     Turns gpio pin on or off.
-    void SetGpio(u32 gpioRegister, u32 value)
+    void SetGpio(u32 gpioRegister, u32 value);
  */
 .globl SetGpio
 SetGpio:
