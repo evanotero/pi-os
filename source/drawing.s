@@ -110,7 +110,7 @@ DrawPixel:
  */
 .globl DrawLine
 DrawLine:
-    PUSH        {R4, R5, R6, R7, R8, R9, R10, R11, LR}
+    PUSH        {R4, R5, R6, R7, R8, R9, R10, R11, R12, LR}
     x0          .req R9
     x1          .req R10
     y0          .req R11
