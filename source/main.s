@@ -47,7 +47,6 @@ ERROR$:
     B           ERROR$
 
 NOERROR$:
-    fbInfoAddr  .req R0
     BL          SetGraphicsAddress
 
     lastRandom  .req R7
@@ -102,7 +101,6 @@ RENDER$:
 
     B           RENDER$
 
-    .unreq      fbInfoAddr
     .unreq      x
     .unreq      y
     .unreq      lastRandom
