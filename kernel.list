@@ -42,7 +42,7 @@ Disassembly of section .text:
     8068:	e1a0f00e 	mov	pc, lr
 
 0000806c <DrawLine>:
-    806c:	e92d4ff0 	push	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+    806c:	e92d5ff0 	push	{r4, r5, r6, r7, r8, r9, sl, fp, ip, lr}
     8070:	e1a09000 	mov	r9, r0
     8074:	e1a0a002 	mov	sl, r2
     8078:	e1a0b001 	mov	fp, r1
@@ -233,9 +233,9 @@ Disassembly of section .text:
     82e4:	2afffff0 	bcs	82ac <RENDER$>
     82e8:	e1a00008 	mov	r0, r8
     82ec:	e1a01009 	mov	r1, r9
-    82f0:	ebffff5d 	bl	806c <DrawLine>
-    82f4:	e1a08002 	mov	r8, r2
-    82f8:	e1a09003 	mov	r9, r3
+    82f0:	e1a08002 	mov	r8, r2
+    82f4:	e1a09003 	mov	r9, r3
+    82f8:	ebffff5b 	bl	806c <DrawLine>
     82fc:	eaffffea 	b	82ac <RENDER$>
 
 00008300 <Random>:
