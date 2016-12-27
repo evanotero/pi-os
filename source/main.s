@@ -88,16 +88,16 @@ RENDER$:
 
     @ Check that y is on screen
     CMP         R3, #768
-    BHS         RENDER$
-
-    @ Draw line from last x, y
-    MOV         R0, lastX
-    MOV         R1, lastY
-    BL          DrawLine
+    BHS         RENDER$    
 
     @ Update last x, y
+    MOV         R0, lastX
+    MOV         R1, lastY
     MOV         lastX, R2
     MOV         lastY, R3
+
+    @ Draw line from last x, y
+    BL          DrawLine
 
     B           RENDER$
 
