@@ -103,3 +103,72 @@ DrawPixel:
     .unreq      fore
     .unreq      addr
     MOV         PC, LR
+
+/*
+    Uses Bresenham's Line Algortihm to draw a line between two points
+    void DrawLine(u32x2 p1, u32x2 p2);
+ */
+.globl DrawLine
+DrawLine:
+    PUSH        {R4, R5, R6, R7, R8, R9, R10, R11, LR}
+    x0          .req R9
+    x1          .req R10
+    y0          .req R11
+    y1          .req R12
+
+    MOV         x0, R0
+    MOV         x1, R2
+    MOV         y0, R1
+    MOV         y1, R3
+
+    dx          .req R4     @ deltax
+    dyn         .req R5     @ -deltay
+    sx          .req R6     @ stepx
+    sy          .req R7     @ stepy
+    err         .req R8
+
+    CMP         x1, x0
+    SUBGT       dx, x1, x0
+    MOVGT       sx, #1
+    SUBLE       dx, x0, x1
+    MOVLE       sx, #-1
+
+    CMP         y1, y0
+    SUBGT       dyn, y0, y1
+    MOVGT       sy, #1
+    SUBLE       dyn, y1, y0
+    MOVLE       sy, #-1
+
+    ADD         err, dx, dyn
+    ADD         x1, sx
+    ADD         y1, sx
+
+PIXELLOOP$:
+    @ Loop until x0 = x1 + stepx or y0 = y1 + stepy
+    TEQ         x0, x1
+    TEQNE       y0, y1
+    POPEQ       {R4, R5, R6, R7, R8, R9, R10, R11, R12, PC}
+
+    MOV         R0, x0
+    MOV         R1, y0
+    BL          DrawPixel
+
+    CMP         dyn, err, LSL #1
+    ADDLE       x0, sx
+    ADDLE       err, dyn
+
+    CMP         dx, err, LSL #1
+    ADDGE       y0, sy
+    ADDGE       err, dx
+
+    B           PIXELLOOP$
+
+    .unreq x0
+    .unreq x1
+    .unreq y0
+    .unreq y1
+    .unreq dx
+    .unreq dyn
+    .unreq sx
+    .unreq sy
+    .unreq err
