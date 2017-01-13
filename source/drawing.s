@@ -17,7 +17,7 @@
 .section .data
 .align 1
 foreColor:
-    .hword  0xFFFF
+    .hword      0xFFFF
 
 /*
     Address of the frame buffer info structure. 
@@ -25,14 +25,14 @@ foreColor:
  */
 .align 2
 graphicsAddress:
-    .int    0
+    .int        0
 
 /*
     Fnot stores bitmap images for the first 128 characters.
  */
 .align 4
 font:
-    .incbin "font.bin"
+    .incbin     "font.bin"
 
 /*
     Changes the current drawing color to the 16 bit colour in r0.
@@ -296,7 +296,7 @@ STRINGLOOP$:
     STRINGLOOPTAB$:
         ADD     x1, cwidth
         CMP     x, x1
-        BGE     STRINGLOOPTAB
+        BGE     STRINGLOOPTAB$
 
     MOV         x, x1
     .unreq      x1
