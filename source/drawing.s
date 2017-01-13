@@ -6,6 +6,8 @@
  *
  * IMPORTANT NOTES:
  * - Address of pixel = frameBufferAddress + (x + y * width) * pixel size
+ * - Length of string and address of the string are stored 
+ *   (instead of relying on terminating character).
  */
 
 /*
@@ -24,6 +26,13 @@ foreColor:
 .align 2
 graphicsAddress:
     .int    0
+
+/*
+    Fnot stores bitmap images for the first 128 characters.
+ */
+.align 4
+font:
+    .incbin "font.bin"
 
 /*
     Changes the current drawing color to the 16 bit colour in r0.
@@ -163,12 +172,143 @@ PIXELLOOP$:
 
     B           PIXELLOOP$
 
-    .unreq x0
-    .unreq x1
-    .unreq y0
-    .unreq y1
-    .unreq dx
-    .unreq dyn
-    .unreq sx
-    .unreq sy
-    .unreq err
+    .unreq      x0
+    .unreq      x1
+    .unreq      y0
+    .unreq      y1
+    .unreq      dx
+    .unreq      dyn
+    .unreq      sx
+    .unreq      sy
+    .unreq      err
+
+/*
+    Renders image for a single character given and returns
+    the width and the height.
+    u32x2 DrawCharacter(char character, u32 x, u32 y);
+ */
+.globl DrawCharacter
+DrawCharacter:
+    CMP         R0, #127
+    MOVHI       R0, #0
+    MOVHI       R1, #0
+    MOVHI       PC, LR
+
+    PUSH        {R4, R5, R6, R7, R8, LR}
+    x           .req R4
+    y           .req R5
+    charAddr    .req R6
+    MOV         x, R1
+    MOV         y, R2
+    LDR         charAddr, =font
+    ADD         charAddr, R0, LSL #4
+
+LINELOOP$:
+    bits        .req R7
+    bit         .req R8
+    LDRB        bits, [charAddr]
+    MOV         bit, #8
+
+    CHARPIXELLOOP$:
+        SUBS    bit, #1
+        BLT     CHARPIXELLOOPEND$
+
+        LSL     bits, #1
+        TST     bits, #0x100
+        BEQ     CHARPIXELLOOP$
+
+        ADD     R0, x, bit
+        MOV     R1, y
+        BL      DrawPixel
+
+        TEQ     bit, #0
+        BNE     CHARPIXELLOOP$
+
+    CHARPIXELLOOPEND$:
+        .unreq  bit
+        .unreq  bits
+        ADD     y, #1
+        ADD     charAddr, #1
+        TST     charAddr, #0b1111
+        BNE     LINELOOP$
+
+    .unreq      x
+    .unreq      y
+    .unreq      charAddr
+
+    width       .req R0
+    height      .req R1
+    MOV         width, #8
+    MOV         height, #16
+
+    POP         {R4, R5, R6, R7, R8, PC}
+    .unreq      width
+    .unreq      height
+
+/*
+    Renders the image for a string of characters.
+    Obeys new line and horizontal tab chars.
+    u32x2 DrawString(char* string, u32 length, u32 x, u32 y);
+ */
+.globl DrawString
+DrawString:
+    x           .req R4
+    y           .req R5
+    x0          .req R6
+    string      .req R7
+    length      .req R8
+    char        .req R9
+    PUSH        {R4, R5, R6, R7, R8, R9, LR}
+
+    MOV         string, R0
+    MOV         length, R1
+    MOV         x, R2
+    MOV         x0, x
+    MOV         y, R3
+
+STRINGLOOP$:
+    SUBS        length, #1
+    BLT         STRINGLOOPEND$
+
+    LDRB        char, [string]
+    ADD         string, #1
+
+    MOV         R0, char
+    MOV         R1, x
+    MOV         R2, y
+    BL          DrawCharacter
+    cwidth      .req R0
+    cheight     .req R1
+
+    TEQ         char, #'\n'
+    MOVEQ       x, x0
+    ADDEQ       y, cheight
+    BEQ         STRINGLOOP$
+
+    TEQ         char, #'\t'
+    ADDNE       x, cwidth
+    BNE         STRINGLOOP$
+
+    ADD         cwidth, cwidth, LSL #2
+    x1          .req R1
+    MOV         x1, x0
+
+    STRINGLOOPTAB$:
+        ADD     x1, cwidth
+        CMP     x, x1
+        BGE     STRINGLOOPTAB
+
+    MOV         x, x1
+    .unreq      x1
+    b           STRINGLOOP$
+
+    STRINGLOOPEND$:
+        .unreq  cwidth
+        .unreq  cheight
+
+    POP         {R4, R5, R6, R7, R8, R9, PC}
+    .unreq      x
+    .unreq      y
+    .unreq      x0
+    .unreq      string
+    .unreq      length
